@@ -1,0 +1,311 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Simple API
+  description: A simple API to illustrate OpenAPI concepts
+servers:
+  - url: https://music.youtube.com/youtubei/v1
+paths:
+  /search:
+    post:
+      operationId: search
+      parameters:
+        - name: User-Agent
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - >-
+                Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0)
+                Gecko/20100101 Firefox/88.0
+        - name: Origin
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - https://music.youtube.com
+        - name: key
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+                - context
+              properties:
+                context:
+                  type: object
+                  properties:
+                    client:
+                      type: object
+                      properties:
+                        clientName:
+                          type: string
+                          enum:
+                            - WEB_REMIX
+                        clientVersion:
+                          type: string
+                          enum:
+                            - '0.1'
+                        hl:
+                          type: string
+                          enum:
+                            - en-GB
+                    user:
+                      type: object
+                      properties: {}
+                query:
+                  type: string
+                params:
+                  type: string
+                  enum:
+                    - EgWKAQIIAWoMEAMQBBAOEAoQBRAJ
+      description: Search through YouTube Music
+      responses:
+        '200':
+          description: Successfully returned a list of results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Search'
+components:
+  schemas:
+    RunsText:
+      type: object
+      properties:
+        text:
+          type: string
+          example: "We Are [NCS Release]"
+    # MenuNavigationRenderer:
+    #   type: object
+    #   properties:
+    #     menuNavigationItemRenderer:
+    #       type: object
+    #       properties:
+    #         text:
+    #           type: object
+    #           items:
+    #             $ref: '#/components/schemas/RunsText'
+    #         icon:
+    #           type: object
+    #           properties:
+    #             iconType:
+    #               type: string
+    #         navigationEndpoint:
+    #           type: object
+    #           properties:
+    #             watchEndpoint:
+    #               type: object
+    #               properties:
+    #                 videoId:
+    #                   type: string
+    #                 playlistId:
+    #                   type: string
+    #                 params:
+    #                   type: string
+    # ToggleMenuServiceItemRenderer:
+    #   type: object
+    #   properties:
+    #     menuServiceItemRenderer:
+    #       type: object
+    #       properties:
+    #         defaultText:
+    #           type: object
+    #           items:
+    #             $ref: '#/components/schemas/RunsText'
+    #         defaultIcon:
+    #           type: object
+    #           properties:
+    #             iconType:
+    #               type: string
+    #         serviceEndpoint:
+    #           type: object
+    #           properties:
+    #             queueAddEndpoint:
+    #               type: object
+    #               properties:
+    #                 queueTarget:
+    #                   type: object
+    #                   properties:
+    #                     videoId:
+    #                       type: string
+    # MenuServiceItemRenderer:
+    #   type: object
+    #   properties:
+    #     menuServiceItemRenderer:
+    #       type: object
+    #       properties:
+    #         text:
+    #           type: object
+    #           items:
+    #             $ref: '#/components/schemas/RunsText'
+    #         icon:
+    #           type: object
+    #           properties:
+    #             iconType:
+    #               type: string
+    #         serviceEndpoint:
+    #           type: object
+    #           properties:
+    #             queueAddEndpoint:
+    #               type: object
+    #               properties:
+    #                 queueTarget:
+    #                   type: object
+    #                   properties:
+    #                     videoId:
+    #                       type: string
+    Thumbnails:
+      type: object
+      properties:
+        url:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    Continuations:
+      type: object
+      properties:
+        nextContinuationData:
+          type: object
+          properties:
+            continuation:
+              type: string
+    Search:
+      type: object
+      properties:
+        contents:
+          type: object
+          properties:
+            tabbedSearchResultsRenderer:
+              type: object
+              properties:
+                tabs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      tabRenderer:
+                        type: object
+                        properties:
+                          selected:
+                            type: boolean
+                          tabIdentifier:
+                            type: string
+                          trackingParams:
+                            type: string
+                          content:
+                            type: object
+                            properties:
+                              sectionListRenderer:
+                                type: object
+                                properties:
+                                  contents:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        musicShelfRenderer:
+                                          type: object
+                                          properties:
+                                            title:
+                                              type: object
+                                              properties:
+                                                runs:
+                                                  type: array
+                                                  items:
+                                                    $ref: '#/components/schemas/RunsText'
+                                            contents:
+                                              type: array
+                                              items:
+                                                type: object
+                                                properties:
+                                                  musicResponsiveListItemRenderer:
+                                                    type: object
+                                                    properties:
+                                                      trackingParams:
+                                                        type: string
+                                                      thumbnail:
+                                                        type: object
+                                                        properties:
+                                                          musicThumbnailRenderer:
+                                                            type: object
+                                                            properties:
+                                                              thumbnail:
+                                                                type: object
+                                                                properties:
+                                                                  thumbnails:
+                                                                    type: array
+                                                                    items:
+                                                                      $ref: '#/components/schemas/Thumbnails'
+                                                              thumbnailCrop:
+                                                                type: string
+                                                              thumbnailScale:
+                                                                type: string
+                                                              trackingParams:
+                                                                type: string
+                                                      flexColumns:
+                                                        type: array
+                                                        items:
+                                                          type: object
+                                                          properties:
+                                                            musicResponsiveListItemFlexColumnRenderer:
+                                                              type: object
+                                                              properties:
+                                                                text:
+                                                                  type: object
+                                                                  properties:
+                                                                    runs:
+                                                                      type: array
+                                                                      items:
+                                                                        type: object
+                                                                        properties:
+                                                                          text:
+                                                                            type: string
+                                                                          navigationEndpoint:
+                                                                            type: object
+                                                                            items:
+                                                                              type: object
+                                                                              properties:
+                                                                                clickTrackingParams:
+                                                                                  type: string
+                                                                                watchEndpoint:
+                                                                                  type: object
+                                                                                  properties:
+                                                                                    videoId:
+                                                                                      type: string
+                                                                                    playlistId:
+                                                                                      type: string
+                                                      playlistItemData:
+                                                        type: object
+                                                        properties:
+                                                          videoId:
+                                                            type: string
+                                                      # menu:
+                                                      #   type: object
+                                                      #   properties:
+                                                      #     menuRenderer:
+                                                      #       type: object
+                                                      #       properties:
+                                                      #         items:
+                                                      #           type: array
+                                                      #           items:
+                                                      #             anyOf:
+                                                      #               - $ref: '#/components/schemas/ToggleMenuServiceItemRenderer'
+                                                      #               - $ref: '#/components/schemas/MenuNavigationRenderer'
+                                                      #               - $ref: '#/components/schemas/MenuServiceItemRenderer'
+                                            continuations:
+                                              type: array
+                                              items:
+                                                $ref: '#/components/schemas/Continuations'
