@@ -111,6 +111,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Next'
+  
+
+  /music/get_search_suggestions:
+    post:
+      operationId: get_search_suggestions
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/User-Agent"
+        - $ref: "#/components/parameters/Origin"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - input
+                - context
+              properties:
+                context:
+                  $ref: "#/components/schemas/Context"
+                input:
+                  type: string
+                  example: "We are NCS"
+      responses:
+        '200':
+          description: Successfully returned a list of results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchSuggestions'
 
 
 
@@ -485,15 +516,16 @@ components:
                                                                   type: array
                                                                   items:
                                                                     $ref: "#/components/schemas/RunsText"
-                                                                accessibility:
-                                                                  type: object
-                                                                  properties:
-                                                                    accessibilityData:
-                                                                      type: object
-                                                                      properties:
-                                                                        label:
-                                                                          type: string
-                                                                          example: "3 minutes, 57 seconds"
+                                                                # Currently causes some issues with swagger-codegen
+                                                                # accessibility:
+                                                                #   type: object
+                                                                #   properties:
+                                                                #     accessibilityData:
+                                                                #       type: object
+                                                                #       properties:
+                                                                #         label:
+                                                                #           type: string
+                                                                #           example: "3 minutes, 57 seconds"
                                                             selected:
                                                               type: boolean
                                                               example: true
@@ -507,4 +539,55 @@ components:
                                                                   type: array
                                                                   items:
                                                                     $ref: "#/components/schemas/RunsText"
+      
+
+    # Response for /search
+    SearchSuggestions:
+      type: object
+      properties:
+        contents:
+          type: array
+          items:
+            type: object
+            properties:
+              searchSuggestionsSectionRenderer:
+                type: object
+                properties:
+                  contents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        searchSuggestionRenderer:
+                          type: object
+                          properties:
+                            suggestion:
+                              type: object
+                              properties:
+                                runs:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      text:
+                                        type: string
+                                        example: we are ncs
+                                      bold:
+                                        type: boolean
+                                        description: 
+                                          ATTENTION! Can be nullable!
+
+                                          It's either null, which means not bold (false), or true, which means it's bold.
+
+                                        example: true
+                            navigationEndpoint:
+                              type: object
+                              properties:
+                                searchEndpoint:
+                                  type: object
+                                  properties:
+                                    query:
+                                      type: string
+                                      example: we are ncs
+
 
