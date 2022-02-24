@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Simple API
-  description: A simple API to illustrate OpenAPI concepts
+  title: YTMusicOpenAPI
+  description: YouTube Music InnerTube API (internal API) reverse-engineered.
 servers:
   - url: https://music.youtube.com/youtubei/v1
 paths:
@@ -10,29 +10,9 @@ paths:
     post:
       operationId: search
       parameters:
-        - name: User-Agent
-          in: header
-          required: true
-          schema:
-            type: string
-            enum:
-              - >-
-                Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0)
-                Gecko/20100101 Firefox/88.0
-        - name: Origin
-          in: header
-          required: true
-          schema:
-            type: string
-            enum:
-              - https://music.youtube.com
-        - name: key
-          in: query
-          required: true
-          schema:
-            type: string
-            enum:
-              - AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/User-Agent"
+        - $ref: "#/components/parameters/Origin"
       requestBody:
         required: true
         content:
@@ -44,32 +24,34 @@ paths:
                 - context
               properties:
                 context:
-                  type: object
-                  properties:
-                    client:
-                      type: object
-                      properties:
-                        clientName:
-                          type: string
-                          enum:
-                            - WEB_REMIX
-                        clientVersion:
-                          type: string
-                          enum:
-                            - '0.1'
-                        hl:
-                          type: string
-                          enum:
-                            - en-GB
-                    user:
-                      type: object
-                      properties: {}
+                  $ref: "#/components/schemas/Context"
                 query:
                   type: string
+                  description: 
+                    Text to search
+                  example: "We Are - NCS"
                 params:
                   type: string
+                  description:
+                    Supply `params` to filter your searches.
+
+                    Paramters are following
+                    - EgWKAQIIAWoMEAMQBBAOEAoQBRAJ (videos)
+                    - EgeKAQQoAEABagoQAxAEEAUQChAJ (playlists)
+                    - EgWKAQIgAWoKEAMQBBAFEAoQCQ%3D%3D (artists)
+                    - EgWKAQIYAWoKEAMQBBAFEAoQCQ%3D%3D (albums)
+
+                    If `params` isn't supplied, then YouTube Backend defaults to `Videos` parameter
+                  example: EgWKAQIIAWoMEAMQBBAOEAoQBRAJ
                   enum:
+                    # Videos
                     - EgWKAQIIAWoMEAMQBBAOEAoQBRAJ
+                    # Playlists
+                    - EgeKAQQoAEABagoQAxAEEAUQChAJ
+                    # Artists
+                    - EgWKAQIgAWoKEAMQBBAFEAoQCQ%3D%3D
+                    # Albums
+                    - EgWKAQIYAWoKEAMQBBAFEAoQCQ%3D%3D
       description: Search through YouTube Music
       responses:
         '200':
@@ -78,93 +60,195 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Search'
+  
+
+  /next:
+    post:
+      operationId: next
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/User-Agent"
+        - $ref: "#/components/parameters/Origin"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - params
+                - enablePersistentPlaylistPanel
+                - isAudioOnly
+                - tunerSettingValue
+                - videoId
+                - context
+              properties:
+                context:
+                  $ref: "#/components/schemas/Context"
+                enablePersistentPlaylistPanel:
+                  type: string
+                  enum: 
+                    - "true"
+                isAudioOnly:
+                  type: string
+                  enum:
+                    - "true"
+                params:
+                  type: string
+                  enum:
+                    - wAEB
+                tunerSettingValue:
+                  type: string
+                  enum:
+                    - AUTOMIX_SETTING_NORMAL
+                videoId:
+                  type: string
+                  example: C6IaUMAg3Dc
+      responses:
+        '200':
+          description: Successfully returned a list of results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Next'
+
+
+
 components:
+  # Parameters (like Headers and Query parameters) should be specified here
+  parameters:
+    User-Agent:
+      name: User-Agent
+      in: header
+      required: true
+      schema:
+        type: string
+        enum:
+          - >-
+            Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0)
+            Gecko/20100101 Firefox/88.0
+    Origin:
+      name: Origin
+      in: header
+      required: true
+      schema:
+        type: string
+        enum:
+          - https://music.youtube.com
+    Key:
+      name: key
+      in: query
+      required: true
+      schema:
+        type: string
+        enum:
+          - AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30
+  # Responses should be defined here
   schemas:
+    Context:
+      type: object
+      properties:
+        client:
+          type: object
+          properties:
+            clientName:
+              type: string
+              enum:
+                - WEB_REMIX
+            clientVersion:
+              type: string
+              enum:
+                - '0.1'
+            hl:
+              type: string
+              enum:
+                - en-GB
+        user:
+          type: object
     RunsText:
       type: object
       properties:
         text:
           type: string
-          example: "We Are [NCS Release]"
-    # MenuNavigationRenderer:
-    #   type: object
-    #   properties:
-    #     menuNavigationItemRenderer:
-    #       type: object
-    #       properties:
-    #         text:
-    #           type: object
-    #           items:
-    #             $ref: '#/components/schemas/RunsText'
-    #         icon:
-    #           type: object
-    #           properties:
-    #             iconType:
-    #               type: string
-    #         navigationEndpoint:
-    #           type: object
-    #           properties:
-    #             watchEndpoint:
-    #               type: object
-    #               properties:
-    #                 videoId:
-    #                   type: string
-    #                 playlistId:
-    #                   type: string
-    #                 params:
-    #                   type: string
-    # ToggleMenuServiceItemRenderer:
-    #   type: object
-    #   properties:
-    #     menuServiceItemRenderer:
-    #       type: object
-    #       properties:
-    #         defaultText:
-    #           type: object
-    #           items:
-    #             $ref: '#/components/schemas/RunsText'
-    #         defaultIcon:
-    #           type: object
-    #           properties:
-    #             iconType:
-    #               type: string
-    #         serviceEndpoint:
-    #           type: object
-    #           properties:
-    #             queueAddEndpoint:
-    #               type: object
-    #               properties:
-    #                 queueTarget:
-    #                   type: object
-    #                   properties:
-    #                     videoId:
-    #                       type: string
-    # MenuServiceItemRenderer:
-    #   type: object
-    #   properties:
-    #     menuServiceItemRenderer:
-    #       type: object
-    #       properties:
-    #         text:
-    #           type: object
-    #           items:
-    #             $ref: '#/components/schemas/RunsText'
-    #         icon:
-    #           type: object
-    #           properties:
-    #             iconType:
-    #               type: string
-    #         serviceEndpoint:
-    #           type: object
-    #           properties:
-    #             queueAddEndpoint:
-    #               type: object
-    #               properties:
-    #                 queueTarget:
-    #                   type: object
-    #                   properties:
-    #                     videoId:
-    #                       type: string
+    MenuNavigationRenderer:
+      type: object
+      properties:
+        menuNavigationItemRenderer:
+          type: object
+          properties:
+            text:
+              type: object
+              items:
+                $ref: '#/components/schemas/RunsText'
+            icon:
+              type: object
+              properties:
+                iconType:
+                  type: string
+            navigationEndpoint:
+              type: object
+              properties:
+                watchEndpoint:
+                  type: object
+                  properties:
+                    videoId:
+                      type: string
+                    playlistId:
+                      type: string
+                    params:
+                      type: string
+    ToggleMenuServiceItemRenderer:
+      type: object
+      properties:
+        menuServiceItemRenderer:
+          type: object
+          properties:
+            defaultText:
+              type: object
+              items:
+                $ref: '#/components/schemas/RunsText'
+            defaultIcon:
+              type: object
+              properties:
+                iconType:
+                  type: string
+            serviceEndpoint:
+              type: object
+              properties:
+                queueAddEndpoint:
+                  type: object
+                  properties:
+                    queueTarget:
+                      type: object
+                      properties:
+                        videoId:
+                          type: string
+    MenuServiceItemRenderer:
+      type: object
+      properties:
+        menuServiceItemRenderer:
+          type: object
+          properties:
+            text:
+              type: object
+              items:
+                $ref: '#/components/schemas/RunsText'
+            icon:
+              type: object
+              properties:
+                iconType:
+                  type: string
+            serviceEndpoint:
+              type: object
+              properties:
+                queueAddEndpoint:
+                  type: object
+                  properties:
+                    queueTarget:
+                      type: object
+                      properties:
+                        videoId:
+                          type: string
     Thumbnails:
       type: object
       properties:
@@ -182,6 +266,10 @@ components:
           properties:
             continuation:
               type: string
+    
+
+
+    # Response for /search
     Search:
       type: object
       properties:
@@ -292,20 +380,131 @@ components:
                                                         properties:
                                                           videoId:
                                                             type: string
-                                                      # menu:
-                                                      #   type: object
-                                                      #   properties:
-                                                      #     menuRenderer:
-                                                      #       type: object
-                                                      #       properties:
-                                                      #         items:
-                                                      #           type: array
-                                                      #           items:
-                                                      #             anyOf:
-                                                      #               - $ref: '#/components/schemas/ToggleMenuServiceItemRenderer'
-                                                      #               - $ref: '#/components/schemas/MenuNavigationRenderer'
-                                                      #               - $ref: '#/components/schemas/MenuServiceItemRenderer'
+                                                      menu:
+                                                        type: object
+                                                        properties:
+                                                          menuRenderer:
+                                                            type: object
+                                                            properties:
+                                                              items:
+                                                                type: array
+                                                                items:
+                                                                  anyOf:
+                                                                    - $ref: '#/components/schemas/ToggleMenuServiceItemRenderer'
+                                                                    - $ref: '#/components/schemas/MenuNavigationRenderer'
+                                                                    - $ref: '#/components/schemas/MenuServiceItemRenderer'
                                             continuations:
                                               type: array
                                               items:
                                                 $ref: '#/components/schemas/Continuations'
+    
+    # Response for /next
+    Next:
+      type: object
+      properties:
+        contents:
+          type: object
+          properties:
+            singleColumnMusicWatchNextResultsRenderer:
+              type: object
+              properties:
+                tabbedRenderer:
+                  type: object
+                  properties:
+                    watchNextTabbedResultsRenderer:
+                      type: object
+                      properties:
+                        tabs:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              tabRenderer:
+                                type: object
+                                properties:
+                                  title:
+                                    type: string
+                                    example: "Up next"
+                                  content:
+                                    type: object
+                                    properties:
+                                      musicQueueRenderer:
+                                        type: object
+                                        properties:
+                                          hack:
+                                            type: boolean
+                                            description: A funny name, but I don't know what it does
+                                          content:
+                                            type: object
+                                            properties:
+                                              playlistPanelRenderer:
+                                                type: object
+                                                properties:
+                                                  title:
+                                                    type: string
+                                                    example: "Jo Cohen & Sex Whales - We Are [NCS Release]"
+                                                  playlistId:
+                                                    type: string
+                                                    example: RDAMVMC6IaUMAg3Dc
+                                                  isInfinite:
+                                                    type: boolean
+                                                    example: true
+                                                  contents:
+                                                    type: array
+                                                    items:
+                                                      type: object
+                                                      properties:
+                                                        playlistPanelVideoRenderer:
+                                                          type: object
+                                                          properties:
+                                                            title:
+                                                              type: object
+                                                              properties:
+                                                                runs:
+                                                                  type: array
+                                                                  items:
+                                                                    $ref: "#/components/schemas/RunsText"
+                                                            longBylineText:
+                                                              type: object
+                                                              properties:
+                                                                runs:
+                                                                  type: array
+                                                                  items:
+                                                                    $ref: "#/components/schemas/RunsText"
+                                                            thumbnail:
+                                                              type: object
+                                                              properties:
+                                                                thumbnails:
+                                                                  type: array
+                                                                  items:
+                                                                    $ref: "#/components/schemas/Thumbnails"
+                                                            lengthText:
+                                                              type: object
+                                                              properties:
+                                                                runs:
+                                                                  type: array
+                                                                  items:
+                                                                    $ref: "#/components/schemas/RunsText"
+                                                                accessibility:
+                                                                  type: object
+                                                                  properties:
+                                                                    accessibilityData:
+                                                                      type: object
+                                                                      properties:
+                                                                        label:
+                                                                          type: string
+                                                                          example: "3 minutes, 57 seconds"
+                                                            selected:
+                                                              type: boolean
+                                                              example: true
+                                                            videoId:
+                                                              type: string
+                                                              example: "C6IaUMAg3Dc"
+                                                            shortBylineText:
+                                                              type: object
+                                                              properties:
+                                                                runs:
+                                                                  type: array
+                                                                  items:
+                                                                    $ref: "#/components/schemas/RunsText"
+
