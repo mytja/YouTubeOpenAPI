@@ -1,0 +1,284 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: YouTubeOpenAPI
+  description: YouTube InnerTube API (internal API) reverse-engineered.
+servers:
+  - url: https://www.youtube.com/youtubei/v1
+paths:
+  /player:
+    post:
+      operationId: player
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/User-Agent"
+        - $ref: "#/components/parameters/ContentCheckOk"
+        - $ref: "#/components/parameters/RacyCheckOk"
+        - $ref: "#/components/parameters/VideoId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - context
+                - api_key
+              properties:
+                context:
+                  $ref: "#/components/schemas/Context"
+                api_key:
+                  type: string
+                  enum:
+                    - "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+                  example: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+      description: Get video info from YouTube
+      responses:
+        '200':
+          description: Successfully returned a list of results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+
+components:
+  # Parameters (like Headers and Query parameters) should be specified here
+  
+  parameters:
+    ContentCheckOk:
+      name: contentCheckOk
+      in: query
+      required: true
+      schema:
+        type: string
+        enum:
+          - "true"
+    RacyCheckOk:
+      name: racyCheckOk
+      in: query
+      required: true
+      schema:
+        type: string
+        enum:
+          - "true"
+    VideoId:
+      name: videoId
+      in: query
+      required: true
+      schema:
+        type: string
+        example: C6IaUMAg3Dc
+    User-Agent:
+      name: User-Agent
+      in: header
+      required: true
+      schema:
+        type: string
+        enum:
+          - >-
+            Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0)
+            Gecko/20100101 Firefox/88.0
+    Key:
+      name: key
+      in: query
+      required: true
+      schema:
+        type: string
+        enum:
+          - AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8
+  # Responses should be defined here
+  schemas:
+    Context:
+      type: object
+      properties:
+        client:
+          type: object
+          properties:
+            clientName:
+              type: string
+              enum:
+                - MWEB
+            clientVersion:
+              type: string
+              enum:
+                - '2.20211109.01.00'
+            hl:
+              type: string
+              enum:
+                - en-GB
+        user:
+          type: object
+    RunsText:
+      type: object
+      properties:
+        text:
+          type: string
+    
+    Thumbnails:
+      type: object
+      properties:
+        url:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    
+
+    Format:
+      type: object
+      properties:
+        itag:
+          type: integer
+          example: 17
+        mimeType:
+          type: string
+          example: "video/3gpp; codecs=\"mp4v.20.3, mp4a.40.2\""
+        bitrate:
+          type: integer
+          example: 81806
+        width:
+          type: integer
+          example: 176
+        height:
+          type: integer
+          example: 144
+        lastModified:
+          type: string
+          example: "1570090108606065"
+        contentLength:
+          type: string
+          example: "2422823"
+        quality:
+          type: string
+          example: small
+        fps:
+          type: integer
+          example: 8
+        qualityLabel:
+          type: string
+          example: "144p"
+        projectionType:
+          type: string
+          example: "RECTANGULAR"
+        averageBitrate:
+          type: integer
+          example: 81757
+        audioQuality:
+          type: string
+          example: AUDIO_QUALITY_LOW
+        approxDurationMs:
+          type: string
+          example: "237075"
+        audioSampleRate:
+          type: string
+          example: "22050"
+        audioChannels:
+          type: integer
+          example: 1
+        signatureCipher:
+          type: string
+          example: s=hZQZUdv6bQUTdjC3hGy_JNC7MNNGhZfkCKAgXXoB6VNjAIC4gDrfzyzWaZNhXIALGqtfH-UN386Kubj3YjHGMvgU2CgIARw8JQ0qOA&sp=sig&url=http://rr3---sn-uxaxh5ji-aw0l.googlevideo.com/videoplayback%3Fexpire%3D1645841145%26ei%3DmTYZYsTGK56P1gKm0YPwBw%26id%3Do-ACiLe60PVcTt4k1oTwZqHTd0MHP46dVgvnRyfh27uUIL%26itag%3D17%26source%3Dyoutube%26mh%3Drx%26mm%3D31%252C29%26mn%3Dsn-uxaxh5ji-aw0l%252Csn-c0q7lns7%26ms%3Dau%252Crdu%26mv%3Dm%26mvi%3D3%26pl%3D19%26initcwndbps%3D811250%26spc%3D4ocVC85RsAHjrdEULALfiQePhHjG%26vprv%3D1%26mime%3Dvideo%252F3gpp%26ns%3DnZRKrKPvJmgy-dI03FQuMkUG%26gir%3Dyes%26clen%3D2422823%26dur%3D237.075%26lmt%3D1570090108606065%26mt%3D1645819247%26fvip%3D3%26fexp%3D24001373%252C24007246%26c%3DMWEB%26txp%3D5531432%26n%3DJou0LomWmH294Y9UsUb%26sparams%3Dexpire%252Cei%252Cip%252Cid%252Citag%252Csource%252Cspc%252Cvprv%252Cmime%252Cns%252Cgir%252Cclen%252Cdur%252Clmt%26lsparams%3Dmh%252Cmm%252Cmn%252Cms%252Cmv%252Cmvi%252Cpl%252Cinitcwndbps%26lsig%3DAG3C_xAwRQIgf1505jZpu1UoBcGI_iNnQxfoZeJLvMENK1AeN3dqbpACIQCMGsyNexGfOGqsohzdW3Pwo84743kNgjxm5N6mYLrCLw%253D%253D
+        # Optional parameters
+        url:
+          type: string
+        initRange:
+          type: object
+          properties:
+            start:
+              type: string
+              example: "0"
+            end:
+              type: string
+              example: "741"
+        indexRange:
+          type: object
+          properties:
+            start:
+              type: string
+              example: "742"
+            end:
+              type: string
+              example: "1337"
+
+    # Response for /player
+    Player:
+      type: object
+      properties:
+        playabilityStatus:
+          type: object
+          properties:
+            status:
+              type: string
+              example: OK
+            playableInEmbed:
+              type: boolean
+              example: true
+        streamingData:
+          type: object
+          properties:
+            expiresInSeconds:
+              type: string
+              example: "21540"
+            formats:
+              type: array
+              items:
+                $ref: "#/components/schemas/Format"
+            adaptiveFormats:
+              type: array
+              items:
+                $ref: "#/components/schemas/Format"
+        videoDetails:
+          type: object
+          properties:
+            videoId:
+              type: string
+              example: "C6IaUMAg3Dc"
+            title:
+              type: string
+              example: Jo Cohen & Sex Whales - We Are [NCS Release]
+            lengthSeconds:
+              type: string
+              example: "237"
+            keywords:
+              type: array
+              items:
+                type: string
+                example: ["Jo Cohen & Sex Whales - We Are", "Jo Cohen", "Sex Whales", "We Are", "We", "Are", "Trap", "ncs", "nocopyrightsounds", "music"]
+            channelId:
+              type: string
+              example: "UC_aEa8K-EOJ3D6gOs7HcyNg"
+            isOwnerViewing:
+              type: boolean
+              example: false
+            shortDescription:
+              type: string
+            isCrawlable:
+              type: boolean
+              example: true
+            thumbnail:
+              type: object
+              properties:
+                thumbnails:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Thumbnails"
+            allowRatings:
+              type: boolean
+              example: true
+            viewCount:
+              type: string
+              example: "87760585"
+            author:
+              type: string
+              example: "NoCopyrightSounds"
+            isPrivate:
+              type: boolean
+              example: false
+            isUnpluggedCorpus:
+              type: boolean
+              example: false
+            isLiveContent:
+              type: boolean
+              example: false
+                
