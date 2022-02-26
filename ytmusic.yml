@@ -65,6 +65,33 @@ paths:
   /next:
     post:
       operationId: next
+      description:
+        Your request body should be as following
+        <br>
+        Context is always the same
+
+        <p/>
+
+        Get suggestions for video
+        You need to specify following
+        <ul>
+        <li> params - should be wAEB </li>
+        <li> enablePersistentPlaylistPanel - should be true </li>
+        <li> isAudioOnly - should be true </li>
+        <li> tunerSettingValue - should be AUTOMIX_SETTING_NORMAL </li>
+        <li> videoId - your video ID </li>
+        </ul>
+
+        <p/>
+
+        Get Video info
+        You need to specify following
+        <ul>
+        <li> browseId - your video ID </li>
+        <li> playlistId - RDAMVM + your video ID (or an actual playlist) </li>
+        <li> enablePersistentPlaylistPanel - should be true </li>
+        <li> isAudioOnly - should be true </li>
+        </ul>
       parameters:
         - $ref: "#/components/parameters/Key"
         - $ref: "#/components/parameters/User-Agent"
@@ -76,15 +103,19 @@ paths:
             schema:
               type: object
               required:
-                - params
                 - enablePersistentPlaylistPanel
                 - isAudioOnly
                 - tunerSettingValue
-                - videoId
                 - context
               properties:
                 context:
                   $ref: "#/components/schemas/Context"
+                browseId:
+                  type: string
+                  example: 4y33h81phKU
+                playlistId:
+                  type: string
+                  example: RDAMVM4y33h81phKU
                 enablePersistentPlaylistPanel:
                   type: string
                   enum: 
@@ -142,6 +173,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SearchSuggestions'
+  
+  /browse:
+    post:
+      operationId: browse
+      description:
+        Your request body should be as following
+        <br>
+        Context is always the same
+
+        <p/>
+
+        Get artist info
+        <ul>
+        <li>browseId - should be artist ID</li>
+        </ul>
+
+        <p/>
+
+        Get Lyrics
+        <ul>
+        <li>browseId - should be browseId for Lyrics, obtained when calling `Get Video info` in /next</li>
+        </ul>
+      parameters:
+        - $ref: "#/components/parameters/Key"
+        - $ref: "#/components/parameters/User-Agent"
+        - $ref: "#/components/parameters/Origin"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - browseId
+                - context
+              properties:
+                context:
+                  $ref: "#/components/schemas/Context"
+                browseId:
+                  type: string
+                  example: "UC_aEa8K-EOJ3D6gOs7HcyNg"
+      responses:
+        '200':
+          description: Successfully returned a list of results
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Browse'
+                  - $ref: "#/components/schemas/Lyrics"
 
 
 
@@ -448,98 +529,126 @@ components:
                         tabs:
                           type: array
                           items:
-                            type: object
-                            properties:
-                              tabRenderer:
-                                type: object
+                            anyOf:
+                              - type: object
                                 properties:
-                                  title:
-                                    type: string
-                                    example: "Up next"
-                                  content:
+                                  tabRenderer:
                                     type: object
                                     properties:
-                                      musicQueueRenderer:
+                                      title:
+                                        type: string
+                                        example: "Up next"
+                                      content:
                                         type: object
                                         properties:
-                                          hack:
-                                            type: boolean
-                                            description: A funny name, but I don't know what it does
-                                          content:
+                                          musicQueueRenderer:
                                             type: object
                                             properties:
-                                              playlistPanelRenderer:
+                                              hack:
+                                                type: boolean
+                                                description: A funny name, but I don't know what it does
+                                              content:
                                                 type: object
                                                 properties:
-                                                  title:
-                                                    type: string
-                                                    example: "Jo Cohen & Sex Whales - We Are [NCS Release]"
-                                                  playlistId:
-                                                    type: string
-                                                    example: RDAMVMC6IaUMAg3Dc
-                                                  isInfinite:
-                                                    type: boolean
-                                                    example: true
-                                                  contents:
-                                                    type: array
-                                                    items:
-                                                      type: object
-                                                      properties:
-                                                        playlistPanelVideoRenderer:
+                                                  playlistPanelRenderer:
+                                                    type: object
+                                                    properties:
+                                                      title:
+                                                        type: string
+                                                        example: "Jo Cohen & Sex Whales - We Are [NCS Release]"
+                                                      playlistId:
+                                                        type: string
+                                                        example: RDAMVMC6IaUMAg3Dc
+                                                      isInfinite:
+                                                        type: boolean
+                                                        example: true
+                                                      contents:
+                                                        type: array
+                                                        items:
                                                           type: object
                                                           properties:
-                                                            title:
+                                                            playlistPanelVideoRenderer:
                                                               type: object
                                                               properties:
-                                                                runs:
-                                                                  type: array
-                                                                  items:
-                                                                    $ref: "#/components/schemas/RunsText"
-                                                            longBylineText:
-                                                              type: object
-                                                              properties:
-                                                                runs:
-                                                                  type: array
-                                                                  items:
-                                                                    $ref: "#/components/schemas/RunsText"
-                                                            thumbnail:
-                                                              type: object
-                                                              properties:
-                                                                thumbnails:
-                                                                  type: array
-                                                                  items:
-                                                                    $ref: "#/components/schemas/Thumbnails"
-                                                            lengthText:
-                                                              type: object
-                                                              properties:
-                                                                runs:
-                                                                  type: array
-                                                                  items:
-                                                                    $ref: "#/components/schemas/RunsText"
-                                                                # Currently causes some issues with swagger-codegen
-                                                                # accessibility:
-                                                                #   type: object
-                                                                #   properties:
-                                                                #     accessibilityData:
-                                                                #       type: object
-                                                                #       properties:
-                                                                #         label:
-                                                                #           type: string
-                                                                #           example: "3 minutes, 57 seconds"
-                                                            selected:
-                                                              type: boolean
-                                                              example: true
-                                                            videoId:
-                                                              type: string
-                                                              example: "C6IaUMAg3Dc"
-                                                            shortBylineText:
-                                                              type: object
-                                                              properties:
-                                                                runs:
-                                                                  type: array
-                                                                  items:
-                                                                    $ref: "#/components/schemas/RunsText"
-      
+                                                                title:
+                                                                  type: object
+                                                                  properties:
+                                                                    runs:
+                                                                      type: array
+                                                                      items:
+                                                                        $ref: "#/components/schemas/RunsText"
+                                                                longBylineText:
+                                                                  type: object
+                                                                  properties:
+                                                                    runs:
+                                                                      type: array
+                                                                      items:
+                                                                        $ref: "#/components/schemas/RunsText"
+                                                                thumbnail:
+                                                                  type: object
+                                                                  properties:
+                                                                    thumbnails:
+                                                                      type: array
+                                                                      items:
+                                                                        $ref: "#/components/schemas/Thumbnails"
+                                                                lengthText:
+                                                                  type: object
+                                                                  properties:
+                                                                    runs:
+                                                                      type: array
+                                                                      items:
+                                                                        $ref: "#/components/schemas/RunsText"
+                                                                    # Currently causes some issues with swagger-codegen
+                                                                    # accessibility:
+                                                                    #   type: object
+                                                                    #   properties:
+                                                                    #     accessibilityData:
+                                                                    #       type: object
+                                                                    #       properties:
+                                                                    #         label:
+                                                                    #           type: string
+                                                                    #           example: "3 minutes, 57 seconds"
+                                                                selected:
+                                                                  type: boolean
+                                                                  example: true
+                                                                videoId:
+                                                                  type: string
+                                                                  example: "C6IaUMAg3Dc"
+                                                                shortBylineText:
+                                                                  type: object
+                                                                  properties:
+                                                                    runs:
+                                                                      type: array
+                                                                      items:
+                                                                        $ref: "#/components/schemas/RunsText"
+                              - type: object
+                                properties:
+                                  tabRenderer:
+                                    type: object
+                                    properties:
+                                      title:
+                                        type: string
+                                        example: Lyrics
+                                        enum:
+                                          - Lyrics
+                                          - Related
+                                      unselectable:
+                                        type: boolean
+                                        description:
+                                          WARNING! NULLABLE!
+
+                                          Available only on Lyrics.
+                                        example: true
+                                      endpoint:
+                                        type: object
+                                        properties:
+                                          browseEndpoint:
+                                            type: object
+                                            properties:
+                                              browseId:
+                                                type: string
+                                                example: MPLYt_K9duaFPVVI9
+                                                description: Browsing ID, that needs to be specified in /next request to retrieve Lyrics or Similar to this video.
 
     # Response for /search
     SearchSuggestions:
@@ -591,3 +700,227 @@ components:
                                       example: we are ncs
 
 
+    Browse:
+      type: object
+      properties:
+        header:
+          type: object
+          properties:
+            musicImmersiveHeaderRenderer:
+              type: object
+              properties:
+                title:
+                  type: object
+                  properties:
+                    runs:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/RunsText"
+                description:
+                  type: object
+                  properties:
+                    runs:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/RunsText"
+                subscriptionButton:
+                  type: object
+                  properties:
+                    subscribeButtonRenderer:
+                      type: object
+                      properties:
+                        subscriberCountText:
+                          type: object
+                          properties:
+                            runs:
+                              type: array
+                              items:
+                                $ref: "#/components/schemas/RunsText"
+                        subscribed:
+                          type: boolean
+                          example: false
+                        enabled:
+                          type: boolean
+                          example: true
+                        type:
+                          type: string
+                          example: FREE
+                        channelId:
+                          type: string
+                          example: UC_aEa8K-EOJ3D6gOs7HcyNg
+                        subscriberCountWithSubscribeText:
+                          type: object
+                          properties:
+                            runs:
+                              type: array
+                              items:
+                                $ref: "#/components/schemas/RunsText"
+                        longSubscriberCountText:
+                          type: object
+                          properties:
+                            runs:
+                              type: array
+                              items:
+                                $ref: "#/components/schemas/RunsText"
+                            accessibility:
+                              type: object
+                              properties:
+                                accessibilityData:
+                                  type: object
+                                  properties:
+                                    label:
+                                      type: string
+                                      example: 32 million subscribers
+        contents:
+          type: object
+          properties:
+            singleColumnBrowseResultsRenderer:
+              type: object
+              properties:
+                tabs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      tabRenderer:
+                        type: object
+                        properties:
+                          content: 
+                            type: object
+                            properties:
+                              sectionListRenderer:
+                                type: object
+                                properties:
+                                  contents:
+                                    type: array
+                                    items:
+                                      anyOf:
+                                        - type: object
+                                          properties:
+                                            musicCarouselShelfRenderer:
+                                              type: object
+                                              properties:
+                                                header:
+                                                  type: object
+                                                  properties:
+                                                    musicCarouselShelfBasicHeaderRenderer:
+                                                      type: object
+                                                      properties:
+                                                        accessibilityData:
+                                                          type: object
+                                                          properties:
+                                                            accessibilityData:
+                                                              type: object
+                                                              properties:
+                                                                label:
+                                                                  type: string
+                                                                  example: Videos
+                                                                  description: If there are videos or playlists in this object
+                                                                  enum:
+                                                                    - Videos
+                                                                    - Playlists
+                                                contents:
+                                                  type: array
+                                                  items:
+                                                    type: object
+                                                    properties:
+                                                      musicTwoRowItemRenderer:
+                                                        type: object
+                                                        properties:
+                                                          thumbnailRenderer:
+                                                            type: object
+                                                            properties:
+                                                              musicThumbnailRenderer:
+                                                                type: object
+                                                                properties:
+                                                                  thumbnail:
+                                                                    type: object
+                                                                    properties:
+                                                                      thumbnails:
+                                                                        type: array
+                                                                        items:
+                                                                          $ref: "#/components/schemas/Thumbnails"
+                                                                  thumbnailCrop:
+                                                                    type: string
+                                                                    example: MUSIC_THUMBNAIL_CROP_UNSPECIFIED
+                                                                  thumbnailScale:
+                                                                    type: string
+                                                                    example: MUSIC_THUMBNAIL_SCALE_ASPECT_FILL
+                                                          aspectRatio:
+                                                            type: string
+                                                            example: MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_RECTANGLE_16_9
+                                                          title:
+                                                            type: object
+                                                            properties:
+                                                              runs:
+                                                                type: array
+                                                                items:
+                                                                  $ref: "#/components/schemas/RunsText"
+                                                          subtitle:
+                                                            type: object
+                                                            properties:
+                                                              runs:
+                                                                type: array
+                                                                items:
+                                                                  $ref: "#/components/schemas/RunsText"
+                                                          navigationEndpoint:
+                                                            type: object
+                                                            properties:
+                                                              watchEndpoint:
+                                                                type: object
+                                                                properties:
+                                                                  videoId:
+                                                                    type: string
+                                                                    example: f_zLB1CTXlQ
+                                                                  playlistId:
+                                                                    type: string
+                                                                    example: RDAMVMf_zLB1CTXlQ
+                                        - type: object
+                                          properties:
+                                            musicDescriptionShelfRenderer:
+                                              type: object
+                                              properties:
+                                                header:
+                                                  type: object
+                                                  properties:
+                                                    runs:
+                                                      type: array
+                                                      items:
+                                                        $ref: "#/components/schemas/RunsText"
+                                                description:
+                                                  type: object
+                                                  properties:
+                                                    runs:
+                                                      type: array
+                                                      items:
+                                                        $ref: "#/components/schemas/RunsText"
+
+    Lyrics:
+      type: object
+      properties:
+        contents:
+          type: object
+          properties:
+            messageRenderer:
+              type: object
+              properties:
+                text:
+                  type: object
+                  properties:
+                    runs:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/RunsText"
+                subtext:
+                  type: object
+                  properties:
+                    messageSubtextRenderer:
+                      type: object
+                      properties:
+                        text:
+                          type: object
+                          properties:
+                            runs:
+                              type: array
+                              items:
+                                $ref: "#/components/schemas/RunsText"
