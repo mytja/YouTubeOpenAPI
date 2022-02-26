@@ -6,6 +6,23 @@ This is using YML syntax to specify responses and requests, defined by the [Open
 
 You can transcompile (auto-generate bindings) this YML file to practicaly any programming language. You should use [swagger-codegen](https://github.com/swagger-api/swagger-codegen), as I personally had issues with [openapi-generator](https://openapi-generator.tech/).
 
+# Generate Dart SDK
+Dart SDK can be generated using [openapi-generator](https://openapi-generator.tech/). Install it using NPM and run following command:
+```sh
+npx @openapitools/openapi-generator-cli generate -i ytmusic.yml -g dart-dio-next -o ytmusicapi-dart -c config.json
+```
+Afterwards, change directory to ytmusicapi-dart and then auto-generate Dart files:
+```sh
+dart pub run build_runner build
+```
+Wait a little bit.
+
+Check with `Dart analyzer` if anything wasn't generated. If a few (like 1-3) classes weren't generated, then no problem, just replace those classes with `Object`.
+
+If there are a lot of classes missing, try to regenerate bindings or open an issue.
+
+Afterwards, you have working bindings.
+
 # License
 This project is licensed under MIT License.
 
